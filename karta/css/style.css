@@ -1,0 +1,175 @@
+/* Effektprognoser Värmland — kart-app */
+
+html, body { height: 100%; margin: 0; padding: 0; }
+#map { position: absolute; top: 0; left: 0; right: 0; bottom: 0; z-index: 0; }
+
+body { font-family: -apple-system, "Segoe UI", Roboto, sans-serif; }
+
+#control-panel {
+  position: absolute;
+  top: 10px; left: 10px;
+  background: rgba(255,255,255,0.96);
+  padding: 10px 14px 12px;
+  border-radius: 4px;
+  box-shadow: 0 1px 6px rgba(0,0,0,0.35);
+  z-index: 1000;
+  max-width: 260px;
+  max-height: calc(100vh - 40px);
+  overflow-y: auto;
+}
+
+#control-panel h3 {
+  font-size: 13px;
+  font-weight: 600;
+  margin: 10px 0 3px;
+  color: #333;
+}
+#control-panel h3:first-child { margin-top: 0; }
+
+#control-panel label {
+  display: block;
+  font-size: 13px;
+  padding: 1px 0;
+  cursor: pointer;
+  color: #222;
+}
+#control-panel label.disabled { color: #aaa; cursor: not-allowed; }
+#control-panel label input { margin-right: 4px; }
+
+/* Opacitet-sektion inne i lagerväljar-menyn */
+.opacitet-sektion {
+  width: 160px;
+  padding: 2px 0 2px;
+}
+.opacitet-sektion h4 {
+  font-size: 12px;
+  font-weight: 600;
+  margin: 0 0 6px;
+  color: #333;
+}
+.t-row { margin-bottom: 7px; }
+.t-row:last-child { margin-bottom: 0; }
+.t-label {
+  display: flex;
+  justify-content: space-between;
+  font-size: 12px;
+  color: #222;
+  margin-bottom: 2px;
+}
+.t-label .t-val { color: #666; font-variant-numeric: tabular-nums; }
+.t-row input[type="range"] {
+  display: block;
+  width: 100%;
+  margin: 0;
+  accent-color: #2e7d52;
+  cursor: pointer;
+}
+
+.status {
+  margin-top: 10px;
+  font-size: 11px;
+  color: #666;
+  min-height: 14px;
+}
+.status.error { color: #c33; }
+
+#legend {
+  position: absolute;
+  bottom: 25px; left: 10px;
+  background: rgba(255,255,255,0.96);
+  padding: 8px 14px 10px;
+  border-radius: 4px;
+  box-shadow: 0 1px 6px rgba(0,0,0,0.35);
+  z-index: 1000;
+}
+#legend h4 {
+  font-size: 12px;
+  font-weight: 600;
+  margin: 0 0 6px;
+  color: #333;
+}
+/* Legendrader är klickbara (filter): hover-yta, dold rad tonas ned */
+#legend-body { margin: 0 -6px; }
+.legend-row {
+  display: flex;
+  align-items: center;
+  font-size: 12px;
+  line-height: 18px;
+  color: #222;
+  padding: 1px 6px;
+  border-radius: 3px;
+  cursor: pointer;
+  user-select: none;
+  transition: background-color .12s, color .12s;
+}
+.legend-row:hover { background: rgba(0, 0, 0, 0.06); }
+.legend-row:focus-visible { outline: 2px solid #2e7d52; outline-offset: -1px; }
+.legend-row.dold { color: #9a9a9a; }
+.legend-row.dold .swatch { opacity: 0.3; filter: grayscale(1); }
+.legend-row .swatch { transition: opacity .12s, filter .12s; }
+
+#legend-foot {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 12px;
+  margin-top: 6px;
+  padding-top: 6px;
+  border-top: 1px solid #e4e4e4;
+  font-size: 11px;
+  line-height: 16px;
+  color: #888;
+  white-space: nowrap;
+}
+#legend-reset {
+  font: inherit;
+  font-size: 11px;
+  line-height: 16px;
+  color: #2e7d52;
+  background: none;
+  border: 1px solid #2e7d52;
+  border-radius: 3px;
+  padding: 0 7px;
+  cursor: pointer;
+  transition: background-color .12s, color .12s;
+}
+#legend-reset:hover { background: #2e7d52; color: #fff; }
+#legend-reset:focus-visible { outline: 2px solid #2e7d52; outline-offset: 1px; }
+
+.swatch {
+  display: inline-block;
+  position: relative;
+  flex: none;
+  width: 22px; height: 12px;
+  margin-right: 6px;
+  vertical-align: middle;
+  border: 1px solid #999;
+  background: #fff;
+  overflow: hidden;
+}
+.swatch-inner {
+  position: absolute;
+  inset: 0;
+  display: block;
+}
+
+/* Diagonalt streck = "Ny bebyggelse" (SVG-hatch i kartan) */
+.swatch-hatch {
+  background-color: #fff;
+  background-image: repeating-linear-gradient(
+    45deg,
+    transparent 0 3px,
+    #000 3px 3.7px
+  );
+}
+
+/* Prickigt = negativa värden (SVG-dot i kartan) */
+.swatch-dot {
+  background-color: #fff;
+  background-image: radial-gradient(#000 28%, transparent 30%);
+  background-size: 4px 4px;
+}
+
+.popup-table { font-size: 12px; border-collapse: collapse; }
+.popup-table th { text-align: left; padding-right: 8px; color: #555; font-weight: 600; }
+.popup-table td { padding: 2px 0; }

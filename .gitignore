@@ -1,0 +1,12 @@
+# Geodata laddas inte upp
+karta/data/
+*.geojson
+*.gpkg
+*.parquet
+*.sqlite
+
+# Temporära filer och OS-skräp
+*.tmp.*
+.DS_Store
+Thumbs.db
+desktop.ini

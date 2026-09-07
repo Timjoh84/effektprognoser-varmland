@@ -1,0 +1,53 @@
+<!doctype html>
+<html lang="sv">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Effektprognoser Värmland</title>
+  <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css">
+  <link rel="stylesheet" href="https://unpkg.com/maplibre-gl@4.7.1/dist/maplibre-gl.css">
+  <link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+  <div id="map"></div>
+
+  <div id="control-panel">
+    <h3>Prognos:</h3>
+    <label><input type="radio" name="prognos" value="eb" checked> Effektbehov (MW)</label>
+    <label><input type="radio" name="prognos" value="ebd"> Tillkommande effektbehov (MW)</label>
+    <label><input type="radio" name="prognos" value="ebp"> Tillkommande effektbehov (%)</label>
+    <label><input type="radio" name="prognos" value="ead"> Tillkommande elanvändning (MWh)</label>
+    <label><input type="radio" name="prognos" value="eap"> Tillkommande elanvändning (%)</label>
+
+    <h3>År:</h3>
+    <label><input type="radio" name="year" value="2023"> 2023</label>
+    <label><input type="radio" name="year" value="2030" checked> 2030</label>
+    <label><input type="radio" name="year" value="2040"> 2040</label>
+
+    <h3>Kategori:</h3>
+    <label><input type="radio" name="category" value="total" checked> Total</label>
+    <label><input type="radio" name="category" value="bostader"> Bostäder</label>
+    <label><input type="radio" name="category" value="industri_och_bygg"> Industri och bygg</label>
+    <label><input type="radio" name="category" value="offentlig_och_privat_sektor"> Offentlig och privat sektor</label>
+    <label><input type="radio" name="category" value="transport"> Transport</label>
+
+    <div id="status" class="status"></div>
+  </div>
+
+  <div id="legend">
+    <h4 id="legend-title">Effektbehov (MW)</h4>
+    <div id="legend-body"></div>
+    <div id="legend-foot">
+      <span id="legend-hint">Klicka på ett intervall för att visa bara det</span>
+      <button type="button" id="legend-reset" hidden>Visa alla</button>
+    </div>
+  </div>
+
+  <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+  <script src="https://unpkg.com/maplibre-gl@4.7.1/dist/maplibre-gl.js"></script>
+  <script src="https://unpkg.com/@maplibre/maplibre-gl-leaflet@0.1.4/leaflet-maplibre-gl.js"></script>
+  <script src="js/schema.js"></script>
+  <script src="js/patterns.js"></script>
+  <script src="js/main.js"></script>
+</body>
+</html>
