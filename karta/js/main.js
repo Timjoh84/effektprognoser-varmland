@@ -79,8 +79,7 @@ function arDold(idx) {
   const { valda } = legendFilter;
   return valda.size > 0 && !valda.has(idx);
 }
-// fill/stroke "none" → rutan varken syns eller fångar klick (Leaflets
-// pointer-events: visiblePainted), till skillnad från fillOpacity 0.
+// fill/stroke "none" → rutan ritas inte alls, till skillnad från fillOpacity 0.
 const DOLD_STIL = { fill: false, stroke: false };
 // setStyle slår ihop options, så synliga stilar måste uttryckligen slå på
 // fill/stroke igen efter att en ruta varit dold.
@@ -118,26 +117,6 @@ function styleFn(prognos, kategori) {
   };
 }
 
-function popupHtml(feature, prognos, kategori) {
-  const p = feature.properties;
-  const schema = SCHEMA[prognos][kategori];
-  const v = p[prognos];
-  let huvudvarde = "(saknas)";
-  if (v != null && !Number.isNaN(v)) {
-    huvudvarde = schema.format(v);
-  }
-  const kommun = p.kn ? `${p.kn} (${p.kk || ""})` : (p.kk || "—");
-  return `
-    <table class="popup-table">
-      <tr><th>Kommun</th><td>${kommun}</td></tr>
-      <tr><th>Ruta-ID</th><td>${p.rid || "—"}</td></tr>
-      <tr><th>Kategori</th><td>${p.category || "—"}</td></tr>
-      <tr><th>${schema.titel}</th><td>${huvudvarde}</td></tr>
-      <tr><th>Effektbehov</th><td>${(p.eb ?? 0).toFixed(3)} MW</td></tr>
-      <tr><th>Elanvändning</th><td>${(p.ea ?? 0).toLocaleString("sv-SE", { maximumFractionDigits: 0 })} MWh</td></tr>
-    </table>
-  `;
-}
 
 // Färgytan ligger i en inre span med samma opacitet som rutorna på kartan,
 // så legendens färger matchar det man faktiskt ser. Ramen påverkas inte.
@@ -200,7 +179,6 @@ function uppdateraLegendTillstand() {
 // ms — okej per klick, ingen throttling behövs.
 function tillampaFilter() {
   uppdateraLegendTillstand();
-  map.closePopup();
   if (!currentLayer) return;
   const { category, prognos } = laesValda();
   currentLayer.setStyle(styleFn(prognos, category));
@@ -386,9 +364,11 @@ async function laddaLager() {
   try {
     const data = await loadGeo(key);
     if (seq !== laddSekvens) return;  // ett nyare val har tagit över
+    // Ingen popup i den här versionen: rutorna är inte klickbara, så
+    // kartan kan dras och zoomas var som helst.
     currentLayer = L.geoJSON(data, {
       style: styleFn(prognos, category),
-      onEachFeature: (feature, layer) => layer.bindPopup(popupHtml(feature, prognos, category)),
+      interactive: false,
     }).addTo(map);
     currentData = { data, year, category, prognos };
     visaLagerStatus();

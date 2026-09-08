@@ -61,7 +61,7 @@ body { font-family: -apple-system, "Segoe UI", Roboto, sans-serif; }
   display: block;
   width: 100%;
   margin: 0;
-  accent-color: #2e7d52;
+  accent-color: #003c68;
   cursor: pointer;
 }
 
@@ -103,7 +103,7 @@ body { font-family: -apple-system, "Segoe UI", Roboto, sans-serif; }
   transition: background-color .12s, color .12s;
 }
 .legend-row:hover { background: rgba(0, 0, 0, 0.06); }
-.legend-row:focus-visible { outline: 2px solid #2e7d52; outline-offset: -1px; }
+.legend-row:focus-visible { outline: 2px solid #003c68; outline-offset: -1px; }
 .legend-row.dold { color: #9a9a9a; }
 .legend-row.dold .swatch { opacity: 0.3; filter: grayscale(1); }
 .legend-row .swatch { transition: opacity .12s, filter .12s; }
@@ -125,16 +125,16 @@ body { font-family: -apple-system, "Segoe UI", Roboto, sans-serif; }
   font: inherit;
   font-size: 11px;
   line-height: 16px;
-  color: #2e7d52;
+  color: #003c68;
   background: none;
-  border: 1px solid #2e7d52;
+  border: 1px solid #003c68;
   border-radius: 3px;
   padding: 0 7px;
   cursor: pointer;
   transition: background-color .12s, color .12s;
 }
-#legend-reset:hover { background: #2e7d52; color: #fff; }
-#legend-reset:focus-visible { outline: 2px solid #2e7d52; outline-offset: 1px; }
+#legend-reset:hover { background: #003c68; color: #fff; }
+#legend-reset:focus-visible { outline: 2px solid #003c68; outline-offset: 1px; }
 
 .swatch {
   display: inline-block;
@@ -170,6 +170,18 @@ body { font-family: -apple-system, "Segoe UI", Roboto, sans-serif; }
   background-size: 4px 4px;
 }
 
-.popup-table { font-size: 12px; border-collapse: collapse; }
-.popup-table th { text-align: left; padding-right: 8px; color: #555; font-weight: 600; }
-.popup-table td { padding: 2px 0; }
+/* Logotyper nere till höger, ovanför kartattributionen */
+#logos {
+  position: absolute;
+  right: 10px; bottom: 28px;
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  padding: 8px 14px;
+  background: rgba(255,255,255,0.96);
+  border-radius: 4px;
+  box-shadow: 0 1px 6px rgba(0,0,0,0.35);
+  z-index: 1000;
+}
+#logos img { display: block; height: 32px; width: auto; }
+#logos .logo-sep { width: 1px; height: 28px; background: #d6d6d6; }

@@ -5,6 +5,9 @@
 - "Visa alla"-knapp i legenden när ett urval är aktivt. Statusraden visar hur många rutor som visas.
 - Bortfiltrerade rutor är varken synliga eller klickbara. Urvalet behålls när man byter år, men nollställs vid byte av prognos eller kategori.
 - Legendrader kan nås med tangentbord (Tab, Enter/Mellanslag).
+- Ingen popup på rutorna i den här versionen. Rutorna är inte klickbara.
+- Logotyper för Region Värmland och RISE nere till höger, hämtade som SVG från respektive organisations webbplats.
+- Färger enligt Region Värmlands grafiska profil: mörkblå (total), gul (bostäder), röd (industri och bygg), lila (offentlig och privat sektor) och grön (transport), med toner 100/80/60/40 % för de fyra intervallen. Reglage och knappar i mörkblått.
 - Nytt valbart lager "Områdeskoncessioner" (streckad linje) i lagerväljaren, med eget opacitetsreglage. Energimarknadsinspektionens koncessionsområden via Svenska kraftnäts karttjänst, filtrerade till Värmland och klippta vid länsgränsen. Av som standard, laddas först när det tänds. (SVK:s egna nätområden valdes bort eftersom nätägarnas polygoner överlappar varandra och ger dubbla linjer.)
 - Valet "Län: Värmland" är borttaget ur panelen (bara ett alternativ fanns).
 - Kategorin "Jordbruk och skogsbruk" är borttagen som eget lager (ingår i Total). Datafilerna för kategorin är borttagna ur v1.2.
