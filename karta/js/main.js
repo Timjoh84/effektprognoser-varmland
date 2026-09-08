@@ -99,6 +99,20 @@ function sattRutOpacitet() {
 // rutkanter försvann helt.
 const KANT_ZOOM = 10;
 
+// Kantfärg för en ruta, oavsett fyllningstyp — alltid en mörkare ton av
+// den färg som faktiskt syns i rutan:
+//   färgad ruta        → tonen av fyllningen
+//   streckad ruta      → tonen av basfärgen under strecken (ligger i
+//                        mönstrets id, t.ex. "url(#hatch-_99b1c3)")
+//   prickig ruta       → tonen av vitt, dvs. ljusgrå (botten är genomskinlig)
+// Tidigare fick mönsterrutorna en neutral mörkgrå kant, som blev betydligt
+// tydligare än grannarnas och fick dem att sticka ut.
+function kantFarg(fill) {
+  if (fill.startsWith("#")) return morkareTon(fill);
+  const m = /hatch-_([0-9a-fA-F]{6})/.exec(fill);
+  return morkareTon(m ? `#${m[1]}` : "#ffffff");
+}
+
 function morkareTon(hex, k = 0.72) {
   const kanal = (i) =>
     Math.round(parseInt(hex.slice(1 + 2 * i, 3 + 2 * i), 16) * k)
@@ -135,10 +149,9 @@ function styleFn(prognos, kategori) {
     }
     const isColor = typeof fill === "string" && fill.startsWith("#");
     if (grid) {
-      // Mönsterfyllda rutor (hatch/dot) har ingen egen hexfärg → neutral kant.
       return {
         ...SYNLIG,
-        color: isColor ? morkareTon(fill) : "#4a4a4a",
+        color: kantFarg(fill),
         // 2 px, inte tunnare: rutnätet ligger snett mot skärmens axlar (se
         // KANT_ZOOM), och en tunnare linje delas då upp av kantutjämningen
         // över två pixelrader och tappar styrka på sina ställen. Uppmätt når
