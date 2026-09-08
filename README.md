@@ -1,28 +1,43 @@
 # Effektprognoser Värmland
 
 Verktyg och underlag från projektet Effektprognoser Värmland (RISE). Repot
-samlar det som byggs i projektet, en mapp per del.
+samlar det som byggs i projektet, en mapp per del. Mappen ligger i projektets
+delade OneDrive/Teams-yta under `Verktyg\effektprognoser-varmland` och är
+samtidigt ett git-repo kopplat till GitHub.
 
 ## Innehåll
 
 | Mapp | Vad |
 |---|---|
 | `karta/` | Interaktiv karta över prognostiserat effektbehov och elanvändning per kilometerruta för 2023, 2030 och 2040, uppdelat på sektorer. Ren HTML, CSS och JavaScript med Leaflet, ingen byggprocess. Se `karta/CHANGELOG.md`. |
+| `karta/data/` | Rutdata, kommungränser och koncessionsområden. Finns bara lokalt i OneDrive, inte på GitHub. |
 
-## Geodata ingår inte
+## Köra kartan
 
-Rutdata, kommungränser och koncessionsområden ligger under `karta/data/` och
-är uteslutna via `.gitignore`. Vid driftsättning läggs mappen på servern
-separat.
+Det enklaste: dubbelklicka på `karta\index.html`. Kartan fungerar direkt från
+disk, ingen installation behövs. Bakgrundskartan hämtas från internet.
 
-## Köra kartan lokalt
-
-Kartan använder OpenFreeMap som bakgrund och laddar data via `<script>`-taggar,
-så den fungerar både direkt från disk och via en webbserver. För att slippa
-Chromes varningar för `file://`, kör i mappen `karta`:
+Vill man slippa Chromes varning i konsolen om `file:`-adresser, kör i stället
+en lokal webbserver i mappen `karta` (kräver Python):
 
 ```bash
 python -m http.server 8000
 ```
 
 Öppna sedan <http://localhost:8000>.
+
+## Versionshantering
+
+- Git sköter historiken. Skapa inga kopior av typen `v1.3` eller `karta_ny`,
+  gör ändringen i `karta/` och committa.
+- Milstolpar markeras med taggar, t.ex. `v1.2`. Lista dem med `git tag`.
+- **Geodata committas inte.** Allt under `karta/data/` samt filer av typen
+  GeoJSON, GeoPackage, Parquet och SQLite är uteslutna via `.gitignore`, oavsett
+  var i repot de ligger. `git status` visar aldrig dem. Datat delas via
+  OneDrive i stället.
+- Vid driftsättning på webbserver läggs `karta/data/` upp separat.
+
+## Äldre versioner
+
+Tidigare versioner av kartan (v1.0 och v1.1) ligger i `Verktyg\_arkiv` och
+används inte längre.
