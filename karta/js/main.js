@@ -33,7 +33,20 @@ function bandIndexFor(feature, prognos, kategori) {
   const schema = SCHEMA[prognos][kategori];
   if (!schema) return -1;
   let value = feature.properties[prognos];
-  if (value == null || Number.isNaN(value)) return -1;
+
+  // null = värdet gick inte att räkna ut mot basåret, dvs. rutan saknade
+  // värde 2023. Sådana rutor hör till "Ny bebyggelse" / "Ny laddinfra".
+  // Saknar vyn ett sådant band (Effektbehov) ger findIndex -1 och rutan
+  // ritas transparent, vilket är rätt: där finns inget att visa.
+  //
+  // Äldre datafiler markerade samma sak med talet 10 000 000. Det formatet
+  // fungerar fortfarande: bandet täcker intervallet [10 000 000, ∞) och
+  // fångas av bandFor nedan. Talet var dock inte säkert — den största
+  // verkliga procentsiffran i datat ligger bara 36 gånger under det.
+  if (value == null || Number.isNaN(value)) {
+    return schema.bands.findIndex((b) => b.style === "hatch");
+  }
+
   // Transport: negativa visas som lägsta positiva (gamla appens regel)
   value = fixTransportNegativ(value, kategori, prognos);
   const band = bandFor(value, schema.bands);
@@ -43,12 +56,14 @@ function bandIndexFor(feature, prognos, kategori) {
 function fillForBand(feature, prognos, kategori, band) {
   const schema = SCHEMA[prognos][kategori];
   if (band.style === "hatch") {
-    // "Ny bebyggelse"
-    // Transport: visa basfärgen direkt (ingen hatch) — gamla appens regel
-    // Övriga: hatch med basfärgen
-    if (kategori === "transport" && schema.base) {
-      return baseColorFor(feature, kategori, prognos, schema.base);
-    }
+    // "Ny bebyggelse" / "Ny laddinfra": värdet gick inte att räkna ut mot
+    // basåret. Rutan ritas streckad över basårets färg.
+    //
+    // Originalappen ritade transportrutorna i hel basfärg utan streck. Här
+    // streckas de som alla andra: för transport är 71 % av rutorna flaggade,
+    // och nästan alla hamnar i palettens ljusaste ton — samma färg som
+    // bandet "0 — 0,2". Utan streck går de alltså inte att skilja från det
+    // lägsta bandet, och legendens streckade ruta stämmer inte med kartan.
     const basfarg = schema.base
       ? baseColorFor(feature, kategori, prognos, schema.base)
       : PALETTE[kategori][0];
@@ -61,13 +76,36 @@ function fillForBand(feature, prognos, kategori, band) {
 }
 
 // Rutornas täckningsgrad, styrs av slidern i panelen (0–1).
+// Genomskinligheten läggs på hela rut-lagret (overlayPane), inte på varje
+// ruta för sig. Varje ruta ritas helt täckande och kanten i fyllningens
+// egen färg; först när lagret som helhet tonas ned blir det genomskinligt.
+// Med genomskinlighet per ruta lägger sig kantens färg ovanpå fyllningen
+// och grannrutors kanter ovanpå varandra, vilket ger en mörkare skarv runt
+// varje ruta — uppmätt ca 5–10 % mörkare än insidan.
 let cellOpacity = 0.75;
 
-// Kantläge beror på zoom: inzoomat får rutorna en mörkgrå kant (tydligt
-// rutnät, lyfter ljusa paletter); utzoomat är rutorna så små att mörka
-// kanter smutsar ner färgen — då används en kant i fyllningens färg som
-// bara sluter antialiasing-gliporna mellan rutorna.
-const KANT_ZOOM = 9;
+function sattRutOpacitet() {
+  map.getPane("overlayPane").style.opacity = cellOpacity;
+}
+
+// Inzoomat får rutorna en synlig kant i en mörkare ton av sin egen färg.
+// Kanten kan ritas täckande (genomskinligheten ligger på hela lagret), och
+// därför blir en delad kant mellan två grannrutor — som ritas två gånger —
+// exakt lika mörk som en kant utan granne. Alla sidor får samma färg.
+// Utzoomat är rutorna bara några pixlar breda; då tar kanten över bilden,
+// så under tröskeln ritas de sömlöst med kanten i fyllningens egen färg.
+// Kantutjämningen lämnas påslagen: crispEdges ger visserligen exakt färg,
+// men kastar bort linjer som täcker mindre än en halv pixel, så enstaka
+// rutkanter försvann helt.
+const KANT_ZOOM = 10;
+
+function morkareTon(hex, k = 0.72) {
+  const kanal = (i) =>
+    Math.round(parseInt(hex.slice(1 + 2 * i, 3 + 2 * i), 16) * k)
+      .toString(16)
+      .padStart(2, "0");
+  return `#${kanal(0)}${kanal(1)}${kanal(2)}`;
+}
 
 // ===== Legendfilter =====
 // Klick på en legendrad visar bara det intervallet; fler klick lägger till
@@ -97,22 +135,28 @@ function styleFn(prognos, kategori) {
     }
     const isColor = typeof fill === "string" && fill.startsWith("#");
     if (grid) {
+      // Mönsterfyllda rutor (hatch/dot) har ingen egen hexfärg → neutral kant.
       return {
         ...SYNLIG,
-        color: "#4a4a4a",
-        weight: 0.5,
-        opacity: cellOpacity * 0.8,
+        color: isColor ? morkareTon(fill) : "#4a4a4a",
+        // 2 px, inte tunnare: rutnätet ligger snett mot skärmens axlar (se
+        // KANT_ZOOM), och en tunnare linje delas då upp av kantutjämningen
+        // över två pixelrader och tappar styrka på sina ställen. Uppmätt når
+        // en 2 px-kant full kantfärg längs hela sin längd, en 1 px-kant bara
+        // på delar av den.
+        weight: 2,
+        opacity: 1,
         fillColor: fill,
-        fillOpacity: cellOpacity,
+        fillOpacity: 1,
       };
     }
     return {
       ...SYNLIG,
       color: isColor ? fill : "#555",
       weight: isColor ? 0.6 : 0.15,
-      opacity: cellOpacity,
+      opacity: 1,
       fillColor: fill,
-      fillOpacity: cellOpacity,
+      fillOpacity: 1,
     };
   };
 }
@@ -217,7 +261,11 @@ function toggleBand(idx) {
 }
 
 // ===== Karta-init =====
-const map = L.map("map", { renderer: L.svg() }).setView([59.6, 13.5], 8);
+// zoomControl: false → Leaflets egna +/–-knappar hamnar annars uppe till
+// vänster, rakt under kontrollpanelen, och blir helt dolda. De läggs i
+// stället uppe till höger, ovanför lagerväljaren.
+const map = L.map("map", { renderer: L.svg(), zoomControl: false }).setView([59.6, 13.5], 8);
+L.control.zoom({ position: "topright", zoomInTitle: "Zooma in", zoomOutTitle: "Zooma ut" }).addTo(map);
 
 const ofmAttribution =
   '<a href="https://openfreemap.org">OpenFreeMap</a> © <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a>';
@@ -234,6 +282,72 @@ const baseLayers = {
 };
 baseLayers["Ljus"].addTo(map);
 
+// ===== Ortnamn ovanpå rutorna =====
+// Rutlagret täcker annars bakgrundskartans ortnamn. Namnen ritas därför en
+// gång till, som vanliga HTML-etiketter i en pane ovanför rutorna, och
+// bakgrundskartans egna ortnamn släcks. Data: OpenStreetMap via Overpass,
+// se data/ortnamn.js. (Ett andra MapLibre-lager vore enklare men kostar ett
+// extra WebGL-sammanhang och gick inte att få att rita tillförlitligt.)
+map.createPane("ortnamnPane");
+Object.assign(map.getPane("ortnamnPane").style, { zIndex: 500, pointerEvents: "none" });
+
+// Från vilken zoomnivå varje ortstyp visas: stad, tätort, by, stadsdel, småort.
+const ORT_MINZOOM = { 1: 7, 2: 8, 3: 10, 4: 11, 5: 12 };
+const ORT_KLASS = { 1: "ort-stad", 2: "ort-tatort", 3: "ort-by", 4: "ort-stadsdel", 5: "ort-smaort" };
+let ortnamnData = null;
+
+// Ritar om etiketterna för aktuell vy. Bara orter i rutan och över sin
+// zoomtröskel tas med, och en etikett hoppas över om den krockar med en
+// redan utsatt (viktigast först: stad före by). Utan krockhantering blir
+// namnen oläsliga i tätbebyggda områden.
+function ritaOrtnamn() {
+  const pane = map.getPane("ortnamnPane");
+  if (!ortnamnData) return;
+  const z = map.getZoom();
+  const bounds = map.getBounds().pad(0.05);
+  const utsatta = [];
+  const frag = document.createDocumentFragment();
+
+  for (const o of ortnamnData) {
+    if (z < ORT_MINZOOM[o.k]) continue;
+    if (!bounds.contains([o.y, o.x])) continue;
+    const pt = map.latLngToLayerPoint([o.y, o.x]);
+    // Grov textbredd: räcker för krockhantering, ingen mätning i DOM:en.
+    const teckenbredd = o.k <= 2 ? 7.5 : 6;
+    const halvB = (o.n.length * teckenbredd) / 2 + 3;
+    const halvH = (o.k <= 2 ? 9 : 8);
+    const ruta = { x1: pt.x - halvB, x2: pt.x + halvB, y1: pt.y - halvH, y2: pt.y + halvH };
+    if (utsatta.some((u) => !(ruta.x2 < u.x1 || ruta.x1 > u.x2 || ruta.y2 < u.y1 || ruta.y1 > u.y2))) continue;
+    utsatta.push(ruta);
+    const el = document.createElement("span");
+    el.className = `ortnamn ${ORT_KLASS[o.k]}`;
+    el.textContent = o.n;
+    el.style.transform = `translate(${Math.round(pt.x)}px, ${Math.round(pt.y)}px)`;
+    frag.appendChild(el);
+  }
+  pane.replaceChildren(frag);
+}
+
+// resize behövs: ritas etiketterna medan kartan har noll storlek (dolt
+// fönster, hopfälld panel) blir vyn tom, och utan resize ritas de inte om
+// förrän användaren själv panorerar.
+map.on("zoomend moveend resize", ritaOrtnamn);
+
+// Släcker bakgrundskartans ortnamn (alla symbol-lager ur source-layer
+// "place"), oavsett vilken stil som är vald.
+function slackBakgrundensOrtnamn(lager) {
+  const gl = lager.getMaplibreMap && lager.getMaplibreMap();
+  if (!gl) return;
+  const doIt = () => {
+    for (const l of (gl.getStyle() || {}).layers || []) {
+      if (l.type === "symbol" && l["source-layer"] === "place") {
+        gl.setLayoutProperty(l.id, "visibility", "none");
+      }
+    }
+  };
+  try { gl.isStyleLoaded() ? doIt() : gl.once("styledata", doIt); } catch (e) { gl.once("styledata", doIt); }
+}
+
 // Kommungränser i egen pane ovanför rut-lagret (overlayPane har z-index 400).
 map.createPane("kommunPane");
 map.getPane("kommunPane").style.zIndex = 450;
@@ -244,9 +358,11 @@ const kommunLayer = L.geoJSON(null, {
 });
 kommunLayer.addTo(map);
 
-// Områdeskoncessioner (Energimarknadsinspektionen, via SVK:s karttjänst)
-// som streckad linje, klippta vid länsgränsen. Av som standard. Samma pane
-// som kommungränserna, ritas under dem.
+// Nätområden i menyn = Energimarknadsinspektionens områdeskoncessioner, via
+// SVK:s karttjänst, som streckad linje och klippta vid länsgränsen. EI:s
+// koncessioner används i stället för SVK:s egna nätområden eftersom
+// nätägarnas polygoner överlappar varandra och ger dubbla linjer.
+// Av som standard. Samma pane som kommungränserna, ritas under dem.
 const koncessionLayer = L.geoJSON(null, {
   pane: "kommunPane",
   interactive: false,
@@ -255,7 +371,7 @@ const koncessionLayer = L.geoJSON(null, {
 
 const layersControl = L.control.layers(baseLayers, {
   "Kommungränser": kommunLayer,
-  "Områdeskoncessioner": koncessionLayer,
+  "Nätområden": koncessionLayer,
 }).addTo(map);
 
 // ===== Opacitet-sektion inne i lagerväljar-menyn =====
@@ -278,7 +394,7 @@ const layersControl = L.control.layers(baseLayers, {
       <input type="range" id="op-kommun" min="0" max="100" step="5" value="50">
     </div>
     <div class="t-row">
-      <div class="t-label"><span>Koncessioner</span><span class="t-val" id="op-nat-val">80 %</span></div>
+      <div class="t-label"><span>Nätområden</span><span class="t-val" id="op-nat-val">80 %</span></div>
       <input type="range" id="op-nat" min="0" max="100" step="5" value="80">
     </div>
   `;
@@ -292,6 +408,17 @@ function setStatus(msg, isError = false) {
 }
 
 // ===== Lazy geojson-laddning (file://-vänlig) =====
+// Versionen tas från den egna script-taggens ?v= och hängs på datafilerna.
+// Utan den serverar webbläsaren gamla datafiler ur cachen efter ett byte —
+// css och js har versionsmärkning i index.html, men data laddas härifrån.
+// Bumpa numret i index.html så laddas allt om, inklusive datat.
+const APP_VERSION = (() => {
+  try {
+    return new URL(document.currentScript.src).searchParams.get("v") || "";
+  } catch (e) {
+    return "";
+  }
+})();
 const pendingLoads = {};
 function loadGeo(key) {
   if (window.GEOJSON && window.GEOJSON[key]) {
@@ -300,7 +427,7 @@ function loadGeo(key) {
   if (pendingLoads[key]) return pendingLoads[key];
   pendingLoads[key] = new Promise((resolve, reject) => {
     const s = document.createElement("script");
-    s.src = `data/${key}.js`;
+    s.src = APP_VERSION ? `data/${key}.js?v=${APP_VERSION}` : `data/${key}.js`;
     s.async = true;
     s.onload = () => {
       if (window.GEOJSON && window.GEOJSON[key]) resolve(window.GEOJSON[key]);
@@ -370,6 +497,7 @@ async function laddaLager() {
       style: styleFn(prognos, category),
       interactive: false,
     }).addTo(map);
+    sattRutOpacitet();
     currentData = { data, year, category, prognos };
     visaLagerStatus();
   } catch (e) {
@@ -383,23 +511,6 @@ document.querySelectorAll("#control-panel input[type=radio]").forEach((el) => {
   el.addEventListener("change", laddaLager);
 });
 
-// ===== Opacitet-sliders (värde = opacitet: 100 % = helt täckande) =====
-const cellSlider = document.getElementById("op-cells");
-const cellVal = document.getElementById("op-cells-val");
-let opacityRaf = null;
-cellSlider.addEventListener("input", () => {
-  cellOpacity = cellSlider.value / 100;
-  cellVal.textContent = `${cellSlider.value} %`;
-  uppdateraLegendOpacitet();
-  if (opacityRaf || !currentLayer) return;
-  // rAF-throttle: setStyle över ~8000 rutor är för tungt per input-event.
-  opacityRaf = requestAnimationFrame(() => {
-    opacityRaf = null;
-    const { category, prognos } = laesValda();
-    if (currentLayer) currentLayer.setStyle(styleFn(prognos, category));
-  });
-});
-
 // Rita om rutkanterna när zoomen passerar tröskeln mellan kantlägena
 let senasteKantlage = null;
 map.on("zoomend", () => {
@@ -410,6 +521,17 @@ map.on("zoomend", () => {
     const { category, prognos } = laesValda();
     currentLayer.setStyle(styleFn(prognos, category));
   }
+});
+
+// ===== Opacitet-sliders (värde = opacitet: 100 % = helt täckande) =====
+const cellSlider = document.getElementById("op-cells");
+const cellVal = document.getElementById("op-cells-val");
+cellSlider.addEventListener("input", () => {
+  cellOpacity = cellSlider.value / 100;
+  cellVal.textContent = `${cellSlider.value} %`;
+  uppdateraLegendOpacitet();
+  // En CSS-egenskap på hela lagret — inget setStyle över ~8000 rutor.
+  sattRutOpacitet();
 });
 
 const kommunSlider = document.getElementById("op-kommun");
@@ -426,7 +548,19 @@ natSlider.addEventListener("input", () => {
   koncessionLayer.setStyle({ opacity: natSlider.value / 100 });
 });
 
-// ===== Kommungränser och koncessioner (lazy, samma mönster som rutdatan) =====
+// ===== Ortnamn, kommungränser och koncessioner (lazy, samma mönster som rutdatan) =====
+// OBS: anropen måste ligga här, efter att loadGeo och pendingLoads deklarerats.
+loadGeo("ortnamn")
+  .then((data) => {
+    ortnamnData = data;
+    ritaOrtnamn();
+    // Släck bakgrundskartans egna ortnamn först när våra syns — ett fel här
+    // ska inte ge en karta helt utan ortnamn.
+    Object.values(baseLayers).forEach(slackBakgrundensOrtnamn);
+    map.on("baselayerchange", (e) => slackBakgrundensOrtnamn(e.layer));
+  })
+  .catch((e) => console.error("Ortnamn kunde inte laddas:", e));
+
 loadGeo("kommungranser")
   .then((data) => kommunLayer.addData(data))
   .catch((e) => console.error("Kommungränser kunde inte laddas:", e));

@@ -4,27 +4,27 @@
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Effektprognoser Värmland</title>
-  <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css">
-  <link rel="stylesheet" href="https://unpkg.com/maplibre-gl@4.7.1/dist/maplibre-gl.css">
-  <link rel="stylesheet" href="css/style.css">
+  <link rel="stylesheet" href="vendor/leaflet.css?v=1.4.2">
+  <link rel="stylesheet" href="vendor/maplibre-gl.css?v=1.4.2">
+  <link rel="stylesheet" href="css/style.css?v=1.4.2">
 </head>
 <body>
   <div id="map"></div>
 
   <div id="control-panel">
-    <h3>Prognos:</h3>
+    <h3>Prognos</h3>
     <label><input type="radio" name="prognos" value="eb" checked> Effektbehov (MW)</label>
     <label><input type="radio" name="prognos" value="ebd"> Tillkommande effektbehov (MW)</label>
     <label><input type="radio" name="prognos" value="ebp"> Tillkommande effektbehov (%)</label>
     <label><input type="radio" name="prognos" value="ead"> Tillkommande elanvändning (MWh)</label>
     <label><input type="radio" name="prognos" value="eap"> Tillkommande elanvändning (%)</label>
 
-    <h3>År:</h3>
+    <h3>År</h3>
     <label><input type="radio" name="year" value="2023"> 2023</label>
     <label><input type="radio" name="year" value="2030" checked> 2030</label>
     <label><input type="radio" name="year" value="2040"> 2040</label>
 
-    <h3>Kategori:</h3>
+    <h3>Kategori</h3>
     <label><input type="radio" name="category" value="total" checked> Total</label>
     <label><input type="radio" name="category" value="bostader"> Bostäder</label>
     <label><input type="radio" name="category" value="industri_och_bygg"> Industri och bygg</label>
@@ -49,11 +49,11 @@
     <img src="img/rise.svg" alt="RISE" class="logo-rise">
   </div>
 
-  <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
-  <script src="https://unpkg.com/maplibre-gl@4.7.1/dist/maplibre-gl.js"></script>
-  <script src="https://unpkg.com/@maplibre/maplibre-gl-leaflet@0.1.4/leaflet-maplibre-gl.js"></script>
-  <script src="js/schema.js"></script>
-  <script src="js/patterns.js"></script>
-  <script src="js/main.js"></script>
+  <script src="vendor/leaflet.js?v=1.4.2"></script>
+  <script src="vendor/maplibre-gl.js?v=1.4.2"></script>
+  <script src="vendor/leaflet-maplibre-gl.js?v=1.4.2"></script>
+  <script src="js/schema.js?v=1.4.2"></script>
+  <script src="js/patterns.js?v=1.4.2"></script>
+  <script src="js/main.js?v=1.4.2"></script>
 </body>
 </html>

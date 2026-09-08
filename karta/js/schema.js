@@ -12,6 +12,14 @@
 window.SCHEMA = (function () {
   const NY_BEBYGGELSE = 10_000_000 - 1;  // tröskel: värden > detta = hatch
 
+  // Rutor som saknade värde basåret har null i de tillkommande fälten.
+  // NY_BEBYGGELSE-tröskeln finns kvar för äldre datafiler som markerade
+  // samma sak med talet 10 000 000, och den definierar legendens band.
+  // Flaggvärdet betyder "rutan saknade värde basåret". För transport är det
+  // nytillkommen laddinfrastruktur, för övriga ny bebyggelse — samma
+  // begrepp som i originalappen (legend.js: "Ny laddinfra" för transport).
+  const nyLabel = (kat) => (kat === "transport" ? "Ny laddinfra" : "Ny bebyggelse");
+
   // Region Värmlands grafiska profil: en basfärg per kategori. Toner får
   // användas i 20 %-steg ned till lägst 10 %. Paletten per kategori är
   // fyra toner av basfärgen, mörkast (100 %) först → ljusast sist.
@@ -66,13 +74,13 @@ window.SCHEMA = (function () {
       return {
         titel: "Tillkommande effektbehov (MW)",
         base: "eb",
-        format: (v) => (v >= NY_BEBYGGELSE ? "Ny bebyggelse" : `${v >= 0 ? "+" : ""}${v.toFixed(2)} MW`),
+        format: (v) => ((v == null || v >= NY_BEBYGGELSE) ? nyLabel(kat) : `${v >= 0 ? "+" : ""}${v.toFixed(2)} MW`),
         bands: [
           band(0,             NY_BEBYGGELSE, "> 0",      palette[0]),
           band(-0.01,         0,        "-0,01 — 0",     palette[1]),
           band(-0.1,          -0.01,    "-0,1 — -0,01",  palette[2]),
           band(-Infinity,     -0.1,     "< -0,1",        palette[3]),
-          band(NY_BEBYGGELSE, Infinity, "Ny bebyggelse", "hatch"),
+          band(NY_BEBYGGELSE, Infinity, nyLabel(kat), "hatch"),
         ],
       };
     }
@@ -86,11 +94,11 @@ window.SCHEMA = (function () {
     if (kat !== "transport") {
       bands.push(band(-Infinity, 0, "< 0", "dot"));
     }
-    bands.push(band(NY_BEBYGGELSE, Infinity, "Ny bebyggelse", "hatch"));
+    bands.push(band(NY_BEBYGGELSE, Infinity, nyLabel(kat), "hatch"));
     return {
       titel: "Tillkommande effektbehov (MW)",
       base: "eb",
-      format: (v) => (v >= NY_BEBYGGELSE ? "Ny bebyggelse" : `${v >= 0 ? "+" : ""}${v.toFixed(2)} MW`),
+      format: (v) => ((v == null || v >= NY_BEBYGGELSE) ? nyLabel(kat) : `${v >= 0 ? "+" : ""}${v.toFixed(2)} MW`),
       bands,
     };
   }
@@ -101,13 +109,13 @@ window.SCHEMA = (function () {
       return {
         titel: "Tillkommande effektbehov (%)",
         base: "eb",
-        format: (v) => (v >= NY_BEBYGGELSE ? "Ny bebyggelse" : `${v >= 0 ? "+" : ""}${v.toFixed(1)} %`),
+        format: (v) => ((v == null || v >= NY_BEBYGGELSE) ? nyLabel(kat) : `${v >= 0 ? "+" : ""}${v.toFixed(1)} %`),
         bands: [
           band(0,             NY_BEBYGGELSE, "> 0 %",    palette[0]),
           band(-2,            0,        "-2 — 0 %",      palette[1]),
           band(-4,            -2,       "-4 — -2 %",     palette[2]),
           band(-Infinity,     -4,       "< -4 %",        palette[3]),
-          band(NY_BEBYGGELSE, Infinity, "Ny bebyggelse", "hatch"),
+          band(NY_BEBYGGELSE, Infinity, nyLabel(kat), "hatch"),
         ],
       };
     }
@@ -126,11 +134,11 @@ window.SCHEMA = (function () {
     if (kat !== "transport") {
       bands.push(band(-Infinity, 0, "< 0 %", "dot"));
     }
-    bands.push(band(NY_BEBYGGELSE, Infinity, "Ny bebyggelse", "hatch"));
+    bands.push(band(NY_BEBYGGELSE, Infinity, nyLabel(kat), "hatch"));
     return {
       titel: "Tillkommande effektbehov (%)",
       base: "eb",
-      format: (v) => (v >= NY_BEBYGGELSE ? "Ny bebyggelse" : `${v >= 0 ? "+" : ""}${v.toFixed(1)} %`),
+      format: (v) => ((v == null || v >= NY_BEBYGGELSE) ? nyLabel(kat) : `${v >= 0 ? "+" : ""}${v.toFixed(1)} %`),
       bands,
     };
   }
@@ -141,13 +149,13 @@ window.SCHEMA = (function () {
       return {
         titel: "Tillkommande elanvändning (MWh)",
         base: "ea",
-        format: (v) => (v >= NY_BEBYGGELSE ? "Ny bebyggelse" : `${v >= 0 ? "+" : ""}${Math.round(v).toLocaleString("sv-SE")} MWh`),
+        format: (v) => ((v == null || v >= NY_BEBYGGELSE) ? nyLabel(kat) : `${v >= 0 ? "+" : ""}${Math.round(v).toLocaleString("sv-SE")} MWh`),
         bands: [
           band(0,             NY_BEBYGGELSE, "> 0",       palette[0]),
           band(-25,           0,        "-25 — 0",        palette[1]),
           band(-50,           -25,      "-50 — -25",      palette[2]),
           band(-Infinity,     -50,      "< -50",          palette[3]),
-          band(NY_BEBYGGELSE, Infinity, "Ny bebyggelse", "hatch"),
+          band(NY_BEBYGGELSE, Infinity, nyLabel(kat), "hatch"),
         ],
       };
     }
@@ -163,11 +171,11 @@ window.SCHEMA = (function () {
     if (kat !== "transport") {
       bands.push(band(-Infinity, 0, "< 0", "dot"));
     }
-    bands.push(band(NY_BEBYGGELSE, Infinity, "Ny bebyggelse", "hatch"));
+    bands.push(band(NY_BEBYGGELSE, Infinity, nyLabel(kat), "hatch"));
     return {
       titel: "Tillkommande elanvändning (MWh)",
       base: "ea",
-      format: (v) => (v >= NY_BEBYGGELSE ? "Ny bebyggelse" : `${v >= 0 ? "+" : ""}${Math.round(v).toLocaleString("sv-SE")} MWh`),
+      format: (v) => ((v == null || v >= NY_BEBYGGELSE) ? nyLabel(kat) : `${v >= 0 ? "+" : ""}${Math.round(v).toLocaleString("sv-SE")} MWh`),
       bands,
     };
   }
@@ -178,13 +186,13 @@ window.SCHEMA = (function () {
       return {
         titel: "Tillkommande elanvändning (%)",
         base: "ea",
-        format: (v) => (v >= NY_BEBYGGELSE ? "Ny bebyggelse" : `${v >= 0 ? "+" : ""}${v.toFixed(1)} %`),
+        format: (v) => ((v == null || v >= NY_BEBYGGELSE) ? nyLabel(kat) : `${v >= 0 ? "+" : ""}${v.toFixed(1)} %`),
         bands: [
           band(0,             NY_BEBYGGELSE, "> 0 %",    palette[0]),
           band(-2,            0,        "-2 — 0 %",      palette[1]),
           band(-6,            -2,       "-6 — -2 %",     palette[2]),
           band(-Infinity,     -6,       "< -6 %",        palette[3]),
-          band(NY_BEBYGGELSE, Infinity, "Ny bebyggelse", "hatch"),
+          band(NY_BEBYGGELSE, Infinity, nyLabel(kat), "hatch"),
         ],
       };
     }
@@ -200,11 +208,11 @@ window.SCHEMA = (function () {
     if (kat !== "transport") {
       bands.push(band(-Infinity, 0, "< 0 %", "dot"));
     }
-    bands.push(band(NY_BEBYGGELSE, Infinity, "Ny bebyggelse", "hatch"));
+    bands.push(band(NY_BEBYGGELSE, Infinity, nyLabel(kat), "hatch"));
     return {
       titel: "Tillkommande elanvändning (%)",
       base: "ea",
-      format: (v) => (v >= NY_BEBYGGELSE ? "Ny bebyggelse" : `${v >= 0 ? "+" : ""}${v.toFixed(1)} %`),
+      format: (v) => ((v == null || v >= NY_BEBYGGELSE) ? nyLabel(kat) : `${v >= 0 ? "+" : ""}${v.toFixed(1)} %`),
       bands,
     };
   }
