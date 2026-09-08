@@ -19,7 +19,7 @@ Säkerhetsrättningar kommer inte av sig själva. Kontrollera någon gång per �
 - Leaflet: <https://github.com/Leaflet/Leaflet/releases>
 - MapLibre GL JS: <https://github.com/maplibre/maplibre-gl-js/releases>
 
-Byt fil, uppdatera tabellen ovan, höj `?v=` i `index.html` och prova kartan.
+Byt fil, uppdatera tabellen ovan och prova kartan.
 
 Fullständiga hashar:
 

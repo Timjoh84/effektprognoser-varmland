@@ -1,7 +1,5 @@
 # Ändringslogg
 
-Versionsnumret motsvarar `?v=` i `index.html`.
-
 ## 1.4
 
 - Rutor som saknar värde i basåret markeras med `null` i datafilerna i stället
@@ -10,8 +8,8 @@ Versionsnumret motsvarar `?v=` i `index.html`.
 - Tredjepartsbiblioteken (Leaflet 1.9.4, MapLibre GL 4.7.1,
   maplibre-gl-leaflet 0.1.4) ligger lokalt i `vendor/` i stället för att
   hämtas från en CDN.
-- Datafilerna versionsmärks på samma sätt som css och js, så att en
-  datauppdatering inte serveras ur webbläsarens cache.
+- Versionsmärkningen av css, js och datafiler (`?v=`) är borttagen.
+  Cachehantering lämnas till webbserverns inställningar.
 - Streckade och prickade rutor får samma slags kant som färgade: en mörkare
   ton av den synliga färgen.
 - Ny specifikation av dataformatet, `DATAFORMAT.md`.
@@ -45,7 +43,6 @@ Versionsnumret motsvarar `?v=` i `index.html`.
   förekomma där. I de tillkommande vyerna ligger raden sist.
 - Sektorn jordbruk och skogsbruk visas inte som eget lager (ingår i Total).
   Länvalet är borttaget.
-- Versionsmärkning av css och js via `?v=`.
 - Fix: snabba byten av år eller sektor under pågående laddning kunde lämna ett
   gammalt lager kvar ovanpå det nya.
 

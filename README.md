@@ -56,8 +56,10 @@ Kopiera `karta/` inklusive `karta/data/` till valfri statisk webbserver.
 Aktivera gärna komprimering (gzip eller brotli) för `.js`-filer; datafilerna är
 2–3 MB vardera okomprimerade.
 
-Vid varje kod- eller datauppdatering ska versionsparametern `?v=` i
-`karta/index.html` höjas, så att webbläsare inte använder cachade filer.
+Efter en uppdatering kan besökare som haft kartan öppen tidigare behöva
+ladda om sidan med Ctrl+F5 för att få de nya filerna. Vill man undvika det
+kan servern skicka `Cache-Control: no-cache` för `.js`-filer, så att
+webbläsaren alltid kontrollerar om filen ändrats.
 
 ## Data
 

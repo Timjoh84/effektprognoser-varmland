@@ -422,17 +422,6 @@ function setStatus(msg, isError = false) {
 }
 
 // ===== Lazy geojson-laddning (file://-vänlig) =====
-// Versionen tas från den egna script-taggens ?v= och hängs på datafilerna.
-// Utan den serverar webbläsaren gamla datafiler ur cachen efter ett byte —
-// css och js har versionsmärkning i index.html, men data laddas härifrån.
-// Bumpa numret i index.html så laddas allt om, inklusive datat.
-const APP_VERSION = (() => {
-  try {
-    return new URL(document.currentScript.src).searchParams.get("v") || "";
-  } catch (e) {
-    return "";
-  }
-})();
 const pendingLoads = {};
 function loadGeo(key) {
   if (window.GEOJSON && window.GEOJSON[key]) {
@@ -441,7 +430,7 @@ function loadGeo(key) {
   if (pendingLoads[key]) return pendingLoads[key];
   pendingLoads[key] = new Promise((resolve, reject) => {
     const s = document.createElement("script");
-    s.src = APP_VERSION ? `data/${key}.js?v=${APP_VERSION}` : `data/${key}.js`;
+    s.src = `data/${key}.js`;
     s.async = true;
     s.onload = () => {
       if (window.GEOJSON && window.GEOJSON[key]) resolve(window.GEOJSON[key]);

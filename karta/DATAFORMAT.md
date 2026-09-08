@@ -217,12 +217,11 @@ Kontroller som nuvarande data klarar och som bör fortsätta gälla:
 
 ## 9. Efter en datauppdatering
 
-1. Lägg de nya filerna i `karta/data/`.
-2. **Höj `?v=`-numret i `index.html`** — det står på fyra ställen, för css, de
-   tre js-filerna, och ärvs därifrån till datafilerna.
+Lägg de nya filerna i `karta/data/`. Inget annat behöver ändras.
 
-Steg 2 är inte valfritt. Utan det serverar webbläsaren gamla datafiler ur
-cachen, och användaren ser gammal data utan att förstå varför.
+Webbläsare som haft kartan öppen tidigare kan ha de gamla datafilerna i
+cachen. Ladda då om med Ctrl+F5. På en webbserver undviks det genom att
+servern skickar `Cache-Control: no-cache` för `.js`-filer.
 
 ---
 
