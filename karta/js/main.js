@@ -11,7 +11,8 @@ const { SCHEMA, PALETTE, NY_BEBYGGELSE, bandFor, fixTransportNegativ } = window.
 const PATTERNS = window.MAP_PATTERNS;
 
 // Returnerar SVG-fill-string för en feature givet aktuell prognos.
-// Speglar logiken i gamla appens styles.js (styleFunctionEB +
+// Speglar logiken i styles.js i Erik Lindvalls Effektprognoser.se
+// (https://github.com/mwa2k/effektprognoser, MIT) — styleFunctionEB +
 // styleFunctionDifference + styleFunctionPercentage).
 // Slå upp basfärg för hatch ("Ny bebyggelse") och transport-fallback:
 // hämta eb/ea-värdet från rutan och slå upp det i AKTUELLA prognosens

@@ -1,7 +1,9 @@
 "use strict";
 
 // Färgschema + intervall för effektprognoser-kartan.
-// Detta är en trogen kopia av gamla appens boundaries_colors.js + patterns.js.
+// Intervallen härrör från boundaries_colors.js i Erik Lindvalls
+// Effektprognoser.se (https://github.com/mwa2k/effektprognoser, MIT).
+// Se LICENSE för hans upphovsrättsnotis.
 // Legendordning som i gamla appen: "Ny bebyggelse" sist, och inte alls under
 // Effektbehov (MW).
 // Varje prognos (eb/ebd/ebp/ead/eap) har ett intervall + färgpalett per

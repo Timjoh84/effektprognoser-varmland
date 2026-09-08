@@ -1,7 +1,8 @@
 "use strict";
 
 // SVG-patterns för Leaflet-kartan: hatch (diagonalt streck) för "Ny bebyggelse"
-// och dot (prickigt) för negativa värden. Speglar gamla appens patterns.js.
+// och dot (prickigt) för negativa värden. Härrör från patterns.js i Erik
+// Lindvalls Effektprognoser.se (https://github.com/mwa2k/effektprognoser, MIT).
 
 window.MAP_PATTERNS = (function () {
   const ns = "http://www.w3.org/2000/svg";

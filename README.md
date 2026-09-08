@@ -12,6 +12,21 @@ samtidigt ett git-repo kopplat till GitHub.
 | `karta/` | Interaktiv karta över prognostiserat effektbehov och elanvändning per kilometerruta för 2023, 2030 och 2040, uppdelat på sektorer. Ren HTML, CSS och JavaScript med Leaflet, ingen byggprocess. Se `karta/CHANGELOG.md`. |
 | `karta/data/` | Rutdata, kommungränser och koncessionsområden. Finns bara lokalt i OneDrive, inte på GitHub. |
 
+## Ursprung och tack
+
+Kartan bygger på **Erik Lindvalls** öppna kartverktyg för
+[Effektprognoser.se](https://effektprognoser.se/), publicerat under MIT-licens
+i <https://github.com/mwa2k/effektprognoser>. Därifrån kommer grundstrukturen
+för appen, färgschemat med intervall per prognos och sektor
+(`boundaries_colors.js`, här `karta/js/schema.js`), mönstren för ny bebyggelse
+och negativa värden (`patterns.js`) samt reglerna för hur rutorna färgläggs
+(`styles.js`, här delar av `karta/js/main.js`).
+
+Värmlandsversionen är omskriven och utökad — bland annat med klickbar legend,
+ortnamn ovanpå rutorna, nätområden, Region Värmlands färgprofil och ett annat
+dataformat — men den hade inte funnits utan originalet. Hans upphovsrättsnotis
+finns bevarad i `LICENSE`.
+
 ## Köra kartan
 
 Det enklaste: dubbelklicka på `karta\index.html`. Kartan fungerar direkt från
